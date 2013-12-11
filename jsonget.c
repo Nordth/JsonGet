@@ -377,7 +377,7 @@ static int pjsonget_string_compare(const JsonGetCursor cursor, const char *str2,
 		int diff = 0;
 		if (*p == '\"') p++; // skip "
 		else return -1;
-		while ((read = pjson_read_string_char(p, &uchar)) > 0 && *str2 && !diff)
+		while (!diff && *str2 && (read = pjson_read_string_char(p, &uchar)) > 0)
 		{
 			int i;
 			p += read;

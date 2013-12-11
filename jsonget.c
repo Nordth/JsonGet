@@ -84,7 +84,7 @@ typedef struct
 
 
 // Make cursor with type JSON_PAIR and specified str pointer
-static JsonGetCursor pjsonget_make_pair_cursor(char *pstr)
+static JsonGetCursor pjsonget_make_pair_cursor(const char *pstr)
 {
 	JSONGET_SKIP_SPACES(pstr);
 	if (*pstr)
@@ -98,7 +98,7 @@ static JsonGetCursor pjsonget_make_pair_cursor(char *pstr)
 }
 
 // Get cursor of string pointer
-static JsonGetCursor pjsonget_decode_cursor(char *pstr)
+static JsonGetCursor pjsonget_decode_cursor(const char *pstr)
 {
 	JSONGET_SKIP_SPACES(pstr);
 	if (*pstr)
@@ -133,7 +133,7 @@ static JsonGetCursor pjsonget_decode_cursor(char *pstr)
 }
 
 // Copy one string to another
-static void pjsonget_copy_str(char* from, int from_len, char* to, int to_len)
+static void pjsonget_copy_str(const char* from, int from_len, char* to, int to_len)
 {
 	while (from_len > 0 && to_len > 1)
 	{
@@ -144,7 +144,7 @@ static void pjsonget_copy_str(char* from, int from_len, char* to, int to_len)
 	*to = 0;
 }
 
-static int pjson_read_hex4(char *pstr, unsigned *out_hex_val)
+static int pjson_read_hex4(const char *pstr, unsigned *out_hex_val)
 {
 	int read;
 	*out_hex_val = 0;
@@ -159,7 +159,7 @@ static int pjson_read_hex4(char *pstr, unsigned *out_hex_val)
 
 // Try to read character from string
 // Return number of read characters
-static int pjson_read_string_char(char *pstr, JsonGetUtf8Char* out_char)
+static int pjson_read_string_char(const char *pstr, JsonGetUtf8Char* out_char)
 {
 	int rc = 1;
 	if (!*pstr || *pstr == '"') 
@@ -245,7 +245,7 @@ static int pjson_read_string_char(char *pstr, JsonGetUtf8Char* out_char)
 }
 
 // Return integer under *pstr and move to end of integer
-static int pjson_eat_int(char** ppstr)
+static int pjson_eat_int(const char** ppstr)
 {
 	int sign = **ppstr == '-';
 	int res = 0;	
@@ -259,9 +259,9 @@ static int pjson_eat_int(char** ppstr)
 }
 
 // Read integer and double representation of number under pstr
-static void pjson_read_number(char* pstr, int *out_as_int, double *out_as_double)
+static void pjson_read_number(const char* pstr, int *out_as_int, double *out_as_double)
 {
-	char *p = pstr;
+	const char *p = pstr;
 	// Read int 
 	*out_as_int = pjson_eat_int(&p);
 
@@ -292,7 +292,7 @@ static void pjson_read_number(char* pstr, int *out_as_int, double *out_as_double
 
 // Skip specified word
 // if _pstr_ is less than _word_ or _pstr_ doesn't contain _word_ return 0, otherwise return 1
-static int pjson_skip_word(char **ppstr, char *word)
+static int pjson_skip_word(const char **ppstr, const char *word)
 {
 	while (**ppstr && *word && **ppstr == *word)
 	{
@@ -305,7 +305,7 @@ static int pjson_skip_word(char **ppstr, char *word)
 // Skip value in json
 // is_pair - skip pair key : value
 // Return 1 when ok, 0 if parse error
-static int pjson_skip_val(char **ppstr, int is_pair)
+static int pjson_skip_val(const char **ppstr, int is_pair)
 {
 	switch (**ppstr)
 	{
@@ -364,9 +364,9 @@ static int pjson_skip_val(char **ppstr, int is_pair)
 }
 
 // Compare string representation of cursor value with _str2_
-static int pjsonget_string_compare(JsonGetCursor cursor, char *str2, char** out_token_end)
+static int pjsonget_string_compare(const JsonGetCursor cursor, const char *str2, const char** out_token_end)
 {
-	char *p = cursor.pstr;
+	const char *p = cursor.pstr;
 	if (cursor.type == JSONGET_INVALID) return -1;
 	
 	*out_token_end = cursor.pstr;
@@ -414,7 +414,7 @@ static int pjsonget_string_compare(JsonGetCursor cursor, char *str2, char** out_
 */
 
 // Create json cursor from NULL-terminated json_str buffer
-JsonGetCursor jsonget(char *json_str)
+JsonGetCursor jsonget(const char *json_str)
 {
 	return pjsonget_decode_cursor(json_str);
 }
@@ -427,13 +427,13 @@ JsonGetCursor jsonget(char *json_str)
 */
 
 // Move to _key_ field of current json object
-JsonGetCursor jsonget_move_key(JsonGetCursor cursor, char* key)
+JsonGetCursor jsonget_move_key(const JsonGetCursor cursor, const char* key)
 {
 	if (cursor.type == JSONGET_OBJECT)
 	{
 		int not_found = 1;
 		JsonGetCursor ckey;
-		char *p = cursor.pstr;
+		const char *p = cursor.pstr;
 		p++; // skip {
 		while(not_found && *p && *p != '}')
 		{
@@ -463,12 +463,12 @@ JsonGetCursor jsonget_move_key(JsonGetCursor cursor, char* key)
 }
 
 // Move to _index_ index of current json array
-JsonGetCursor jsonget_move_index(JsonGetCursor cursor, int index)
+JsonGetCursor jsonget_move_index(const JsonGetCursor cursor, const int index)
 {
 	if (cursor.type == JSONGET_ARRAY || cursor.type == JSONGET_OBJECT)
 	{
 		int i = 0;
-		char *p = cursor.pstr;
+		const char *p = cursor.pstr;
 		char closec = *p == '[' ? ']' : '}';
 		if (*p) p++; // skip [ or {
 		while (*p && i != index && *p != closec)
@@ -490,11 +490,11 @@ JsonGetCursor jsonget_move_index(JsonGetCursor cursor, int index)
 }
 
 // Move to next element in array or pair in json object
-JsonGetCursor jsonget_move_next(JsonGetCursor cursor)
+JsonGetCursor jsonget_move_next(const JsonGetCursor cursor)
 {
 	if (cursor.type != JSONGET_INVALID)
 	{
-		char *p = cursor.pstr;
+		const char *p = cursor.pstr;
 		if (!pjson_skip_val(&p, cursor.type == JSONGET_PAIR)) JSONGET_RETURN_INVALID_CURSOR;
 		JSONGET_SKIP_SPACES(p);
 		if (*p == ',') p++;
@@ -506,11 +506,11 @@ JsonGetCursor jsonget_move_next(JsonGetCursor cursor)
 }
 
 // Move to pair value 
-JsonGetCursor jsonget_move_pair_value(JsonGetCursor cursor)
+JsonGetCursor jsonget_move_pair_value(const JsonGetCursor cursor)
 {
 	if (cursor.type == JSONGET_PAIR)
 	{
-		char *p = cursor.pstr;
+		const char *p = cursor.pstr;
 		if (!pjson_skip_val(&p, 0)) JSONGET_RETURN_INVALID_CURSOR;
 		JSONGET_SKIP_SPACES(p);
 		if (*p == ':') p++;
@@ -529,7 +529,7 @@ JsonGetCursor jsonget_move_pair_value(JsonGetCursor cursor)
 */
 
 // Function to get integer value from cursor
-int jsonget_int(JsonGetCursor cursor, int* out_int)
+int jsonget_int(const JsonGetCursor cursor, int* out_int)
 {
 	switch (cursor.type)
 	{
@@ -547,7 +547,7 @@ int jsonget_int(JsonGetCursor cursor, int* out_int)
 }
 
 // Function to get float-point value from cursor
-int jsonget_double(JsonGetCursor cursor, double* out_double)
+int jsonget_double(const JsonGetCursor cursor, double* out_double)
 {
 	int unused;
 	if (cursor.type == JSONGET_DOUBLE || cursor.type == JSONGET_INTEGER)
@@ -559,11 +559,11 @@ int jsonget_double(JsonGetCursor cursor, double* out_double)
 }
 
 // Function to get raw representation of cursor value
-int jsonget_raw(JsonGetCursor cursor, char** out_string_start, int* out_length)
+int jsonget_raw(const JsonGetCursor cursor, const char **out_string_start, int *out_length)
 {
 	if (cursor.type != JSONGET_INVALID)
 	{
-		char *p = cursor.pstr;
+		const char *p = cursor.pstr;
 		*out_string_start = p;
 		if (!pjson_skip_val(&p, 0)) return 0;
 		*out_length = p - *out_string_start;
@@ -573,9 +573,9 @@ int jsonget_raw(JsonGetCursor cursor, char** out_string_start, int* out_length)
 }
 
 // Copy result of jsonget_raw function to buffer dest and truncate to max_length
-int jsonget_raw_copy(JsonGetCursor cursor, char* dest_buffer, int buffer_size, int *out_real_length)
+int jsonget_raw_copy(const JsonGetCursor cursor, char *dest_buffer, int buffer_size, int *out_real_length)
 {
-	char *string_start;
+	const char *string_start;
 	int length;
 	int ok = jsonget_raw(cursor, &string_start, &length);
 	if (ok)
@@ -587,12 +587,12 @@ int jsonget_raw_copy(JsonGetCursor cursor, char* dest_buffer, int buffer_size, i
 }
 
 // Function to get string from cursor
-int jsonget_string(JsonGetCursor cursor, char* dest_buffer, int buffer_size, int *out_real_length)
+int jsonget_string(const JsonGetCursor cursor, char *dest_buffer, int buffer_size, int *out_real_length)
 {
 	if (cursor.type == JSONGET_STRING || cursor.type == JSONGET_PAIR)
 	{
 		int read;
-		char *p = cursor.pstr;
+		const char *p = cursor.pstr;
 		JsonGetUtf8Char uchar;
 		*out_real_length = 0;
 		if (*p == '"') p++;
@@ -624,25 +624,25 @@ int jsonget_string(JsonGetCursor cursor, char* dest_buffer, int buffer_size, int
 */
 
 // Return type of cursor.
-int jsonget_type(JsonGetCursor cursor)
+int jsonget_type(const JsonGetCursor cursor)
 {
 	return cursor.type;
 }
 
 // Return 1 if cursor is INVALID or NULL, otherwise return 0
-int jsonget_isnull(JsonGetCursor cursor)
+int jsonget_isnull(const JsonGetCursor cursor)
 {
 	return cursor.type == JSONGET_INVALID || cursor.type == JSONGET_NULL;
 }
 
 // Return 1 if cursor is BOOLEAN and value is true, otherwise return 0
-int jsonget_istrue(JsonGetCursor cursor)
+int jsonget_istrue(const JsonGetCursor cursor)
 {
 	return cursor.type == JSONGET_BOOLEAN && *cursor.pstr == 't';
 }
 
 // Return count of elements in json array
-int jsonget_array_count(JsonGetCursor cursor)
+int jsonget_array_count(const JsonGetCursor cursor)
 {
 	if (cursor.type == JSONGET_ARRAY || cursor.type == JSONGET_OBJECT)
 	{
@@ -659,8 +659,8 @@ int jsonget_array_count(JsonGetCursor cursor)
 }
 
 // Compare string representation of cursor value with _str2_
-int jsonget_string_compare(JsonGetCursor cursor, char* str2)
+int jsonget_string_compare(const JsonGetCursor cursor, const char *str2)
 {
-	char *unused;
+	const char *unused;
 	return pjsonget_string_compare(cursor, str2, &unused);
 }

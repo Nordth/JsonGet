@@ -98,7 +98,7 @@ extern "C"
 //
 typedef struct 
 {
-	char* pstr;		// pointer to first value character
+	const char* pstr;		// pointer to first value character
 	int type;		// type of json value
 } JsonGetCursor;
 
@@ -109,7 +109,7 @@ typedef struct
 */
 
 // Create json cursor from NULL-terminated json_str buffer
-extern JsonGetCursor jsonget(char *json_str);
+extern JsonGetCursor jsonget(const char *json_str);
 
 /*
 ** ------------------------------------------
@@ -118,17 +118,17 @@ extern JsonGetCursor jsonget(char *json_str);
 */
 
 // Move to _key_ field of current json object
-extern JsonGetCursor jsonget_move_key(JsonGetCursor cursor, char* key);
+extern JsonGetCursor jsonget_move_key(const JsonGetCursor cursor, const char *key);
 
 // Move to _index_ index of current json array or _index_ pair in json object
-extern JsonGetCursor jsonget_move_index(JsonGetCursor cursor, int index);
+extern JsonGetCursor jsonget_move_index(const JsonGetCursor cursor, const int index);
 
 // Move to next element in array
 // If cursor is pair in json object, move to next pair
-extern JsonGetCursor jsonget_move_next(JsonGetCursor cursor);
+extern JsonGetCursor jsonget_move_next(const JsonGetCursor cursor);
 
 // Move to pair value 
-extern JsonGetCursor jsonget_move_pair_value(JsonGetCursor cursor);
+extern JsonGetCursor jsonget_move_pair_value(const JsonGetCursor cursor);
 
 /*
 ** ------------------------------------------
@@ -147,7 +147,7 @@ extern JsonGetCursor jsonget_move_pair_value(JsonGetCursor cursor);
 //
 // If cursor type is one of listed above, return 1 overwise return 0
 //
-extern int jsonget_int(JsonGetCursor cursor, int* out_int);
+extern int jsonget_int(const JsonGetCursor cursor, int *out_int);
 
 // Function to get float-point value from cursor
 //
@@ -158,25 +158,25 @@ extern int jsonget_int(JsonGetCursor cursor, int* out_int);
 //
 // If cursor type is one of listed above, return 1 overwise return 0
 //
-extern int jsonget_double(JsonGetCursor cursor, double* out_double);
+extern int jsonget_double(const JsonGetCursor cursor, double *out_double);
 
 // Function to get raw representation of cursor value
 // E.g. [1, 2] for ARRAY, {"key": 2} for OBJECT and "string" for STRING
 // ! This function does not allocate any memory. It just gives pointer to piece of original json_str buffer
 // Return 0 if cursor type is INVALID
-extern int jsonget_raw(JsonGetCursor cursor, char** out_string_start, int* out_length);
+extern int jsonget_raw(const JsonGetCursor cursor, const char **out_string_start, int *out_length);
 
 // Copy result of jsonget_raw function to buffer dest and truncate to max_length
 // ! This function does not allocate any memory.
 // Return 0 if cursor type is INVALID
-extern int jsonget_raw_copy(JsonGetCursor cursor, char* dest_buffer, int buffer_size, int *out_real_length);
+extern int jsonget_raw_copy(const JsonGetCursor cursor, char *dest_buffer, int buffer_size, int *out_real_length);
 
 // Function to get string from cursor
 // Unlike jsonget_raw this function also unescape string
 // If cursor type is not STRING, result is equivalent to jsonget_raw_copy
 // ! This function does not allocate any memory.
 // Return 0 if cursor type is INVALID
-extern int jsonget_string(JsonGetCursor cursor, char* dest_buffer, int buffer_size, int *out_real_length);
+extern int jsonget_string(const JsonGetCursor cursor, char *dest_buffer, int buffer_size, int *out_real_length);
 
 /*
 ** ------------------------------------------
@@ -186,21 +186,21 @@ extern int jsonget_string(JsonGetCursor cursor, char* dest_buffer, int buffer_si
 
 // Return type of cursor.
 // Instead of calling this function you can just use cursor.type field
-extern int jsonget_type(JsonGetCursor cursor);
+extern int jsonget_type(const JsonGetCursor cursor);
 
 // Return 1 if cursor is INVALID or NULL, otherwise return 0
-extern int jsonget_isnull(JsonGetCursor cursor);
+extern int jsonget_isnull(const JsonGetCursor cursor);
 
 // Return 1 if cursor is BOOLEAN and value is true, otherwise return 0
-extern int jsonget_istrue(JsonGetCursor cursor);
+extern int jsonget_istrue(const JsonGetCursor cursor);
 
 // Return count of elements in json array
 // If cursor type is not ARRAY or OBJECT, return 0
-extern int jsonget_array_count(JsonGetCursor cursor);
+extern int jsonget_array_count(const JsonGetCursor cursor);
 
 // Compare string representation of cursor value with _str2_
 // Return 0 if strings are equal
-extern int jsonget_string_compare(JsonGetCursor cursor, char* str2);
+extern int jsonget_string_compare(const JsonGetCursor cursor, const char *str2);
 
 
 #ifdef __cplusplus

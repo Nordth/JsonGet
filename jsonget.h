@@ -202,6 +202,15 @@ extern int jsonget_array_count(const JsonGetCursor cursor);
 // Return 0 if strings are equal
 extern int jsonget_string_compare(const JsonGetCursor cursor, const char *str2);
 
+// Get size of cursor string value in bytes
+// Retrun 0 if cursor is INVALID
+extern int jsonget_string_size(const JsonGetCursor cursor);
+
+// Get rough size of cursor string value in bytes, that can be more or equal than real size
+// This function faster than jsonget_string_size because doesn't resolve escape sequences
+// Retrun 0 if cursor is INVALID
+extern int jsonget_string_size_rough(const JsonGetCursor cursor);
+
 
 #ifdef __cplusplus
 }

@@ -84,6 +84,11 @@ There are also other helpful functions:
 
 * `int jsonget_string_compare(JsonGetCursor cursor, char* str2);` - compare string value of cursor with specified string
 
+* `int jsonget_string_size(JsonGetCursor cursor);` - get size of cursor string value in bytes
+
+* `int jsonget_string_size_rough(JsonGetCursor cursor);` - get rough size of cursor string value in bytes, that can be more or equal than real size
+
+
 ## Example 2: Iterate over json object fields or array elements
 
 ```cpp

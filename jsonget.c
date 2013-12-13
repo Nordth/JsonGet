@@ -664,3 +664,25 @@ int jsonget_string_compare(const JsonGetCursor cursor, const char *str2)
 	const char *unused;
 	return pjsonget_string_compare(cursor, str2, &unused);
 }
+
+// Get size of cursor string value in bytes
+int jsonget_string_size(const JsonGetCursor cursor)
+{
+	char buf[1];
+	int real_len;
+	if (jsonget_string(cursor, buf, sizeof(buf), &real_len)) return real_len;
+	else return 0;	
+}
+
+// Get rough size of cursor string value in bytes, that can be more or equal than real size
+int jsonget_string_size_rough(const JsonGetCursor cursor)
+{
+	const char* p;
+	int size;
+	if (jsonget_raw(cursor, &p, &size))
+	{
+		if (cursor.type == JSONGET_STRING || cursor.type == JSONGET_PAIR) return size - 2; // exclude quotes
+		else return size;
+	}
+	else return 0;
+}
